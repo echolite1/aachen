@@ -27,9 +27,9 @@ async function findAppointment(){
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -');
 
-    //await personType(regular.category, regular.buttons, regular.name);
-    //await personType(studentFH.category, studentFH.buttons, studentFH.name);
-    await personType(studentRWTH.category, studentRWTH.buttons, studentRWTH.name);
+    await personType(regular.category, regular.buttons, regular.name);
+    // await personType(studentFH.category, studentFH.buttons, studentFH.name);
+    // await personType(studentRWTH.category, studentRWTH.buttons, studentRWTH.name);
 
     async function personType(categoryID, buttonType, personName) {
             var link = constantLink;
@@ -72,13 +72,13 @@ async function findAppointment(){
                 try {
                     await page.waitForSelector("#inhalt > div.info > p > strong > span", { timeout: 500 });
     
-                    for(let i = 1; i < 10; i++){
+                    for(let i = 1; i < 15; i++){
                         try{
                             [thirdPage_Result] = await page.$x('//*[@id="ui-id-'+i+'\"]');
                             result = await thirdPage_Result.getProperty('textContent');
                             resultText = await result.jsonValue();
                             if(resultText == "Vorschläge filtern"){
-                                i = 10;
+                                i = 15;
                             }
                             else{
                                 console.log(resultText);
@@ -116,32 +116,9 @@ async function findAppointment(){
 // ************************************** MAIN ******************************************************
 findAppointment();
 
-// team 1
-//*[@id="button-plus-198"]
-// team 2
-//*[@id="button-plus-201"]
-// team 3
-//*[@id="button-plus-202"]
-
-// t1 minus
-//*[@id="button-minus-198"]
-// t2 minus
-//*[@id="button-minus-201"]
-// t3 minus
-//*[@id="button-minus-202"]
-
-
-//*[@id="button-plus-193"]
-
-//*[@id="header_concerns_accordion-115"]
-//*[@id="header_concerns_accordion-117"]
-
-// db43abca-0ce9-4d3b-9cd0-36d48cc9c4ff
-// 8db1df0f-13d1-46da-84ed-d59de41ae393
-
-            // [thirdPage_Result] = await page.$x('//*[@id="inhalt"]/div[2]/h2');
-            // result = await thirdPage_Result.getProperty('textContent');
-            // noAppointments = await result.jsonValue();
-            // console.log('p3 no appointments');
-
-            // console.log(noAppointments);
+//NOTES
+// [thirdPage_Result] = await page.$x('//*[@id="inhalt"]/div[2]/h2');
+// result = await thirdPage_Result.getProperty('textContent');
+// noAppointments = await result.jsonValue();
+// console.log('p3 no appointments');
+// console.log(noAppointments);
