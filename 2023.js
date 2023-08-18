@@ -8,7 +8,7 @@ var yyyy = today.getFullYear();
 today = dd + '-' + mm + '-' + yyyy;
 // main variables
 const constantLink = 'https://termine.staedteregion-aachen.de/auslaenderamt/';
-const defaultTime = 800;
+const defaultTime = 1000;
 const multiplier = 4;
 var people = [115, 198, 198, 201, 201, 202, 202]; //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
 // other functions
@@ -24,8 +24,8 @@ async function findAppointment(){
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -');
 
-    //await People();
-    await FHStudents();
+    await People();
+    //await FHStudents();
 
     async function People() {
             var link = constantLink;
@@ -63,12 +63,28 @@ async function findAppointment(){
             console.log('p3 location');
             await delay(defaultTime * multiplier);
 
-            [thirdPage_Result] = await page.$x('//*[@id="inhalt"]/div[2]/h2');
-            result = await thirdPage_Result.getProperty('textContent');
-            noAppointments = await result.jsonValue();
-            console.log('p3 no appointments');
+            // [thirdPage_Result] = await page.$x('//*[@id="inhalt"]/div[2]/h2');
+            // result = await thirdPage_Result.getProperty('textContent');
+            // noAppointments = await result.jsonValue();
+            // console.log('p3 no appointments');
 
-            console.log(noAppointments);
+            // console.log(noAppointments);
+            for(let i = 1; i < 10; i++){
+                try{
+                    [thirdPage_Result] = await page.$x('//*[@id="ui-id-'+i+'\"]');
+                    result = await thirdPage_Result.getProperty('textContent');
+                    resultText = await result.jsonValue();
+                    if(resultText == "Vorschläge filtern"){
+                        i = 10;
+                    }
+                    else{
+                        console.log(resultText);
+                    }
+                }
+                catch(error){
+                    console.error('Error: ' + error);
+                }
+            }
 
             [thirdPage_Back] = await page.$x('//*[@id="zurueck"]');
             await thirdPage_Back.evaluate(thirdPage_Back => thirdPage_Back.click());
