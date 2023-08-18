@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const { text } = require('stream/consumers');
 // creating date
 var today = new Date();
+var rawTime = new Date();
 var dd = String(today.getDate()).padStart(2, '0');
 var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
 var yyyy = today.getFullYear();
