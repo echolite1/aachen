@@ -10,7 +10,8 @@ today = dd + '-' + mm + '-' + yyyy;
 const constantLink = 'https://termine.staedteregion-aachen.de/auslaenderamt/';
 const defaultTime = 1000;
 const multiplier = 4;
-var people = [115, 198, 198, 201, 201, 202, 202]; //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+var people = [198, 201, 202]; //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+var category = 115;
 // other functions
 function delay(time) {
     return new Promise(function(resolve) { setTimeout(resolve, time) });
@@ -24,10 +25,10 @@ async function findAppointment(){
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -');
 
-    await People();
+    await People(category, people);
     //await FHStudents();
 
-    async function People() {
+    async function People(categoryID, peopleType) {
             var link = constantLink;
             await page.goto(link);
             await delay(defaultTime);
@@ -38,69 +39,74 @@ async function findAppointment(){
             console.log('p1 done');
             await delay(defaultTime);
 
-            [secondPage_Aufenthalt] = await page.$x('//*[@id="header_concerns_accordion-115"]');
+            [secondPage_Aufenthalt] = await page.$x('//*[@id="header_concerns_accordion-'+categoryID+'\"]');
             await secondPage_Aufenthalt.evaluate(secondPage_Aufenthalt => secondPage_Aufenthalt.click());
             console.log('p2 dropdown');
             await delay(defaultTime);
             //new team
-            [secondPage_T1Plus] = await page.$x('//*[@id="button-plus-198"]');
-            await secondPage_T1Plus.evaluate(secondPage_T1Plus => secondPage_T1Plus.click());
-            console.log('p2 team 1');
-            await delay(defaultTime);
-
-            [secondPage_Proceed] = await page.$x('//*[@id="WeiterButton"]');
-            await secondPage_Proceed.evaluate(secondPage_Proceed => secondPage_Proceed.click());
-            console.log('p2 proceed');
-            await delay(defaultTime);
-
-            [secondPage_Popup] = await page.$x('//*[@id="OKButton"]'); // might be skippable
-            await secondPage_Popup.evaluate(secondPage_Popup => secondPage_Popup.click());
-            console.log('p2 popup');
-            await delay(defaultTime * multiplier);
-
-            [thirdPage_Location] = await page.$x('//*[@id="ui-id-2"]/form/table/tbody/tr[5]/td/input');
-            await thirdPage_Location.evaluate(thirdPage_Location => thirdPage_Location.click());
-            console.log('p3 location');
-            await delay(defaultTime * multiplier);
-
-            // [thirdPage_Result] = await page.$x('//*[@id="inhalt"]/div[2]/h2');
-            // result = await thirdPage_Result.getProperty('textContent');
-            // noAppointments = await result.jsonValue();
-            // console.log('p3 no appointments');
-
-            // console.log(noAppointments);
-            for(let i = 1; i < 10; i++){
-                try{
-                    [thirdPage_Result] = await page.$x('//*[@id="ui-id-'+i+'\"]');
-                    result = await thirdPage_Result.getProperty('textContent');
-                    resultText = await result.jsonValue();
-                    if(resultText == "Vorschläge filtern"){
-                        i = 10;
+            for(const element of peopleType){
+                [secondPage_T1Plus] = await page.$x('//*[@id="button-plus-'+element+'\"]');
+                await secondPage_T1Plus.evaluate(secondPage_T1Plus => secondPage_T1Plus.click());
+                console.log('p2 team selected');
+                await delay(defaultTime);
+    
+                [secondPage_Proceed] = await page.$x('//*[@id="WeiterButton"]');
+                await secondPage_Proceed.evaluate(secondPage_Proceed => secondPage_Proceed.click());
+                console.log('p2 proceed');
+                await delay(defaultTime);
+    
+                [secondPage_Popup] = await page.$x('//*[@id="OKButton"]');
+                await secondPage_Popup.evaluate(secondPage_Popup => secondPage_Popup.click());
+                console.log('p2 popup');
+                await delay(defaultTime * multiplier);
+    
+                [thirdPage_Location] = await page.$x('//*[@id="ui-id-2"]/form/table/tbody/tr[5]/td/input');
+                await thirdPage_Location.evaluate(thirdPage_Location => thirdPage_Location.click());
+                console.log('p3 location');
+                await delay(defaultTime * multiplier);
+    
+                try {
+                    await page.waitForSelector("#inhalt > div.info > p > strong > span", { timeout: 500 });
+    
+                    for(let i = 1; i < 10; i++){
+                        try{
+                            [thirdPage_Result] = await page.$x('//*[@id="ui-id-'+i+'\"]');
+                            result = await thirdPage_Result.getProperty('textContent');
+                            resultText = await result.jsonValue();
+                            if(resultText == "Vorschläge filtern"){
+                                i = 10;
+                            }
+                            else{
+                                console.log(resultText);
+                            }
+                        }
+                        catch(error){
+                            console.error('Error: ' + error);
+                        }
                     }
-                    else{
-                        console.log(resultText);
-                    }
+    
+                } catch (error) {
+                    console.log("The element didn't appear");
                 }
-                catch(error){
-                    console.error('Error: ' + error);
-                }
+    
+                [thirdPage_Back] = await page.$x('//*[@id="zurueck"]');
+                await thirdPage_Back.evaluate(thirdPage_Back => thirdPage_Back.click());
+                console.log('p3 Zurück zur Standortauswahl');
+                await delay(defaultTime);
+    
+                [secondPage_Back] = await page.$x('//*[@id="zurueck"]');
+                await secondPage_Back.evaluate(secondPage_Back => secondPage_Back.click());
+                console.log('p2 Zurück');
+                await delay(defaultTime);
+    
+                [secondPage_T1Minus] = await page.$x('//*[@id="button-minus-'+element+'\"]');
+                await secondPage_T1Minus.evaluate(secondPage_T1Minus => secondPage_T1Minus.click());
+                console.log('p2 no team');
+                await delay(defaultTime);
             }
 
-            [thirdPage_Back] = await page.$x('//*[@id="zurueck"]');
-            await thirdPage_Back.evaluate(thirdPage_Back => thirdPage_Back.click());
-            console.log('p3 Zurück zur Standortauswahl');
-            await delay(defaultTime);
-
-            [secondPage_Back] = await page.$x('//*[@id="zurueck"]');
-            await secondPage_Back.evaluate(secondPage_Back => secondPage_Back.click());
-            console.log('p2 Zurück');
-            await delay(defaultTime);
-
-            [secondPage_T1Minus] = await page.$x('//*[@id="button-minus-198"]');
-            await secondPage_T1Minus.evaluate(secondPage_T1Minus => secondPage_T1Minus.click());
-            console.log('p2 no team');
-            await delay(defaultTime);
             // new team
+            /*
             [secondPage_T2Plus] = await page.$x('//*[@id="button-plus-201"]');
             await secondPage_T2Plus.evaluate(secondPage_T2Plus => secondPage_T2Plus.click());
             console.log('p2 team 2');
@@ -169,6 +175,7 @@ async function findAppointment(){
             console.log('p3 no appointments');
 
             console.log(noAppointments);
+            */
         
         return;
     }
@@ -246,3 +253,13 @@ findAppointment();
 
 //*[@id="header_concerns_accordion-115"]
 //*[@id="header_concerns_accordion-117"]
+
+// db43abca-0ce9-4d3b-9cd0-36d48cc9c4ff
+// 8db1df0f-13d1-46da-84ed-d59de41ae393
+
+            // [thirdPage_Result] = await page.$x('//*[@id="inhalt"]/div[2]/h2');
+            // result = await thirdPage_Result.getProperty('textContent');
+            // noAppointments = await result.jsonValue();
+            // console.log('p3 no appointments');
+
+            // console.log(noAppointments);
