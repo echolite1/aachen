@@ -91,12 +91,12 @@ async function findAppointment(){
                     }
     
                 } catch (error) {
-                    console.log("The element didn't appear");
+                    console.log("No appointments available");
                 }
     
                 [thirdPage_Back] = await page.$x('//*[@id="zurueck"]');
                 await thirdPage_Back.evaluate(thirdPage_Back => thirdPage_Back.click());
-                console.log('\np3 Zurück zur Standortauswahl');
+                console.log('\np3 Zurück');
                 await delay(defaultTime);
     
                 [secondPage_Back] = await page.$x('//*[@id="zurueck"]');
